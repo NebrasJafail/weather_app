@@ -33,6 +33,9 @@ def get_weather(city):
 
     data = response.json()
 
+    st.write("STATUS:", response.status_code)
+    st.write("DATA:", data)
+    
     #print("TYPE:", type(data))
     #print("DATA:", data)
 
