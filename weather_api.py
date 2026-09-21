@@ -80,7 +80,6 @@ def get_forecast(city):
 
     headers = {
         #"x-rapidapi-key": os.getenv("RAPIDAPI_KEY"),
-        "x-rapidapi-key": st.secrets["RAPIDAPI_KEY"],
         "x-rapidapi-host": "open-weather13.p.rapidapi.com"
     }
 
