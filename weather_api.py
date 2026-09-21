@@ -33,8 +33,8 @@ def get_weather(city):
 
     data = response.json()
 
-    print("TYPE:", type(data))
-    print("DATA:", data)
+    #print("TYPE:", type(data))
+    #print("DATA:", data)
 
     if not isinstance(data, dict):
         return None
