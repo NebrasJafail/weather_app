@@ -33,8 +33,8 @@ def get_weather(city):
 
     data = response.json()
 
-    print("TYPE:", type(data))
-    print("DATA:", data)
+    #print("TYPE:", type(data))
+    #print("DATA:", data)
 
     if not isinstance(data, dict):
         return None
@@ -80,6 +80,7 @@ def get_forecast(city):
 
     headers = {
         #"x-rapidapi-key": os.getenv("RAPIDAPI_KEY"),
+        "x-rapidapi-key": st.secrets["RAPIDAPI_KEY"],        
         "x-rapidapi-host": "open-weather13.p.rapidapi.com"
     }
 
