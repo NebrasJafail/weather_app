@@ -1,4 +1,4 @@
-import os #To securely access the API key from the environment variable.
+#import os #To securely access the API key from the environment variable.
 #from dotenv import load_dotenv
 from openai import OpenAI
 import pandas as pd
@@ -10,6 +10,10 @@ import pandas as pd
   #  api_key=os.getenv("OPENROUTER_API_KEY")
 #)
 
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=st.secrets["OPENROUTER_API_KEY"]
+)
 
 def get_llm_response(df):
     """Generate an AI weather summary from the latest 7 observations"""
