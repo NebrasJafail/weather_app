@@ -1,9 +1,11 @@
-import os
+#import os
+#import requests
+#from dotenv import load_dotenv
+
+#load_dotenv()
+
+import streamlit as st
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
-
 
 def get_weather(city):
     url = "https://open-weather13.p.rapidapi.com/city"
@@ -15,7 +17,8 @@ def get_weather(city):
     }
 
     headers = {
-        "x-rapidapi-key": os.getenv("RAPIDAPI_KEY"),
+        #"x-rapidapi-key": os.getenv("RAPIDAPI_KEY"),
+        "x-rapidapi-key": st.secrets["RAPIDAPI_KEY"],
         "x-rapidapi-host": "open-weather13.p.rapidapi.com"
     }
 
@@ -76,7 +79,8 @@ def get_forecast(city):
     }
 
     headers = {
-        "x-rapidapi-key": os.getenv("RAPIDAPI_KEY"),
+        #"x-rapidapi-key": os.getenv("RAPIDAPI_KEY"),
+        "x-rapidapi-key": st.secrets["RAPIDAPI_KEY"],
         "x-rapidapi-host": "open-weather13.p.rapidapi.com"
     }
 

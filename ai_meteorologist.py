@@ -1,14 +1,22 @@
 import os #To securely access the API key from the environment variable.
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 from openai import OpenAI
 import pandas as pd
 
-load_dotenv() #Load the variables stored in the .env file.
+import streamlit as st
+from openai import OpenAI
 
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY")
+    api_key=st.secrets["OPENROUTER_API_KEY"]
 )
+
+#load_dotenv() #Load the variables stored in the .env file.
+
+#client = OpenAI(
+ #   base_url="https://openrouter.ai/api/v1",
+  #  api_key=os.getenv("OPENROUTER_API_KEY")
+#)
 
 
 def get_llm_response(df):
