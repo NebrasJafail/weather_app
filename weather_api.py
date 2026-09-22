@@ -1,31 +1,50 @@
-#import os
-#import requests
-#from dotenv import load_dotenv
-
-#load_dotenv()
-
-import streamlit as st
 import requests
 
-def get_weather(city):
-    url = "https://open-weather13.p.rapidapi.com/city"
 
-    querystring = {
-        "city": city,
-        "lang": "EN",
-        "units": "metric"
+def get_weather(city):
+    """Return the current weather for a city"""
+
+    # Find the city's coordinates
+    geocoding_url = "https://geocoding-api.open-meteo.com/v1/search"
+
+    geocoding_params = {
+        "name": city,
+        "count": 1,
+        "language": "en",
+        "format": "json"
     }
 
-    headers = {
-        #"x-rapidapi-key": os.getenv("RAPIDAPI_KEY"),
-        "x-rapidapi-key": st.secrets["RAPIDAPI_KEY"],
-        "x-rapidapi-host": "open-weather13.p.rapidapi.com"
+    location_response = requests.get(
+        geocoding_url,
+        params=geocoding_params
+    )
+
+    if location_response.status_code != 200:
+        return None
+
+    location_data = location_response.json()
+
+    if "results" not in location_data:
+        return None
+
+    latitude = location_data["results"][0]["latitude"]
+    longitude = location_data["results"][0]["longitude"]
+
+    # Get current weather
+    weather_url = "https://api.open-meteo.com/v1/forecast"
+
+    weather_params = {
+        "latitude": latitude,
+        "longitude": longitude,
+        "current": "temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code",
+        "temperature_unit": "celsius",
+        "wind_speed_unit": "kmh",
+        "timezone": "auto"
     }
 
     response = requests.get(
-        url,
-        headers=headers,
-        params=querystring
+        weather_url,
+        params=weather_params
     )
 
     if response.status_code != 200:
@@ -33,69 +52,120 @@ def get_weather(city):
 
     data = response.json()
 
-    st.write("STATUS:", response.status_code)
-    st.write("DATA:", data)
-    
-    #print("TYPE:", type(data))
-    #print("DATA:", data)
+    current = data["current"]
 
-    if not isinstance(data, dict):
-        return None
+    weather_codes = {
+        0: "Clear sky",
+        1: "Mainly clear",
+        2: "Partly cloudy",
+        3: "Overcast",
+        45: "Fog",
+        48: "Depositing rime fog",
+        51: "Light drizzle",
+        53: "Moderate drizzle",
+        55: "Dense drizzle",
+        61: "Slight rain",
+        63: "Moderate rain",
+        65: "Heavy rain",
+        71: "Slight snow",
+        73: "Moderate snow",
+        75: "Heavy snow",
+        80: "Slight rain showers",
+        81: "Moderate rain showers",
+        82: "Violent rain showers",
+        95: "Thunderstorm"
+    }
 
-    if "main" not in data:
-        return None
-
-
-
-    temperature = (data["main"]["temp"] - 32) * 5 / 9
-    humidity = data["main"]["humidity"]
-    wind_speed = data["wind"]["speed"] * 3.6
-    condition = data["weather"][0]["description"]
+    condition = weather_codes.get(
+        current["weather_code"],
+        "Unknown"
+    )
 
     return {
-    "city": city,
-    "temperature": round(temperature, 2),
-    "humidity": humidity,
-    "wind_speed": wind_speed,
-    "condition": condition,
-    "latitude": data["coord"]["lat"],
-    "longitude": data["coord"]["lon"]
-}
+        "city": city,
+        "temperature": current["temperature_2m"],
+        "humidity": current["relative_humidity_2m"],
+        "wind_speed": current["wind_speed_10m"],
+        "condition": condition,
+        "latitude": latitude,
+        "longitude": longitude
+    }
+
 
 def get_forecast(city):
     """Return the weather forecast for the next few days"""
 
-    current_weather = get_weather(city)
+    weather = get_weather(city)
 
-    if current_weather is None:
+    if weather is None:
         return None
 
-    latitude = current_weather["latitude"]
-    longitude = current_weather["longitude"]
+    latitude = weather["latitude"]
+    longitude = weather["longitude"]
 
-    url = "https://open-weather13.p.rapidapi.com/fivedaysforcast"
+    url = "https://api.open-meteo.com/v1/forecast"
 
-    querystring = {
-        "lang": "EN",
-        "longitude": str(longitude),
-        "latitude": str(latitude)
-    }
-
-    headers = {
-        #"x-rapidapi-key": os.getenv("RAPIDAPI_KEY"),
-        "x-rapidapi-key": st.secrets["RAPIDAPI_KEY"],        
-        "x-rapidapi-host": "open-weather13.p.rapidapi.com"
+    params = {
+        "latitude": latitude,
+        "longitude": longitude,
+        "daily": "temperature_2m_min,temperature_2m_max,weather_code",
+        "temperature_unit": "celsius",
+        "wind_speed_unit": "kmh",
+        "timezone": "auto",
+        "forecast_days": 6
     }
 
     response = requests.get(
         url,
-        headers=headers,
-        params=querystring
+        params=params
     )
 
     if response.status_code != 200:
         return None
 
-    return response.json()
+    data = response.json()
 
-    
+    weather_codes = {
+        0: "Clear sky",
+        1: "Mainly clear",
+        2: "Partly cloudy",
+        3: "Overcast",
+        45: "Fog",
+        48: "Depositing rime fog",
+        51: "Light drizzle",
+        53: "Moderate drizzle",
+        55: "Dense drizzle",
+        61: "Slight rain",
+        63: "Moderate rain",
+        65: "Heavy rain",
+        80: "Slight rain showers",
+        81: "Moderate rain showers",
+        82: "Violent rain showers",
+        95: "Thunderstorm"
+    }
+
+    return {
+        "list": [
+            {
+                "dt_txt": date,
+                "main": {
+                    "temp": max_temp
+                },
+                "weather": [
+                    {
+                        "description": weather_codes.get(
+                            code,
+                            "Unknown"
+                        )
+                    }
+                ],
+                "min_temp": min_temp
+            }
+            for date, min_temp, max_temp, code in zip(
+                data["daily"]["time"],
+                data["daily"]["temperature_2m_min"],
+                data["daily"]["temperature_2m_max"],
+                data["daily"]["weather_code"]
+            )
+        ]
+    }
