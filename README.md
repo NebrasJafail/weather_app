@@ -192,7 +192,7 @@ It demonstrates:
 ## 🔗 Project Links
 
 * **Live Streamlit App:** https://weather-app-1st-project.streamlit.app/
-* **Video Demonstration:** [Watch the project demonstration]https://drive.google.com/file/d/1Zfhp46CMpgjx7zH8OQ7vytLp4Gp6N3_H/view?usp=sharing
+* **Video Demonstration:** https://drive.google.com/file/d/1Zfhp46CMpgjx7zH8OQ7vytLp4Gp6N3_H/view?usp=sharing
 * **GitHub Repository:** https://github.com/NebrasJafail/weather_app.git
 
 ## 📚 Learning Resources
